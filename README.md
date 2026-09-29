@@ -17,7 +17,7 @@ Kampüs içindeki seminer, atölye ve söyleşilerin listelendiği, detayların�
 ├── README.md
 └── sprint1/
     ├── README.md
-    ├── afis.svg
+    ├── afis.jpg
     ├── index.html
     ├── etkinlikler.html
     ├── etkinlik-detay.html
