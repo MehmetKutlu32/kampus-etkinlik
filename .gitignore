@@ -1,0 +1,25 @@
+# İşletim sistemi
+.DS_Store
+Thumbs.db
+Desktop.ini
+.env
+
+# Editör / IDE
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Geçici dosyalar ve loglar
+*.log
+*.tmp
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Bağımlılıklar ve Dağıtım
+node_modules/
+.vercel/
