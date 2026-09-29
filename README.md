@@ -5,7 +5,7 @@ Kampüs içindeki seminer, atölye ve söyleşilerin listelendiği, detayların�
 - **Öğrenci:** Mehmet Kutlu — 2416501002
 - **Ders:** Web Teknolojileri ve Programlama
 - **Canlı Adres:** [https://web-tech-project-orpin.vercel.app](https://web-tech-project-orpin.vercel.app)
-- **GitHub Repository:** [https://github.com/MehmetKutlu32/web-tech-project](https://github.com/MehmetKutlu32/web-tech-project)
+- **GitHub Repository:** [https://github.com/MehmetKutlu32/kampus-etkinlik](https://github.com/MehmetKutlu32/kampus-etkinlik)
 
 ---
 
