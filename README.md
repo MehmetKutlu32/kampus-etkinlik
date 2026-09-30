@@ -27,8 +27,7 @@ Kampüs içindeki seminer, atölye ve söyleşilerin listelendiği, detayların�
     ├── README.md
     ├── afis.jpg
     ├── css/
-    │   ├── 2416501002.css
-    │   └── numaran.css
+    │   └── 2416501002.css
     ├── index.html
     ├── etkinlikler.html
     ├── etkinlik-detay.html

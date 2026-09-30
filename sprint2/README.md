@@ -14,7 +14,6 @@ ve yeni etkinlik eklenip güncellenebildiği web uygulamasının **CSS ve Respon
 | Dosya | İçerik |
 | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
 | `sprint2/css/2416501002.css` | Öğrenci numarasına ve son hanesine özel oluşturulmuş CSS dosyası (`--no`, `--ton`, `--font: Tahoma`, HSL renk paleti, responsive) |
-| `sprint2/css/numaran.css` | Alternatif erişim için öğrenci numarası stilini içe aktaran dosya |
 | `sprint2/index.html` | Yaklaşan 2 etkinlik kartı, responsive grid (geniş ekranda 2 sütun, mobilde tek sütun), "Tüm etkinlikleri gör" bağlantısı |
 | `sprint2/etkinlikler.html` | Ekim ayı etkinlik kartları (geniş ekranda 3 sütun kart, mobilde tek sütun) |
 | `sprint2/etkinlik-detay.html` | Geniş ekranda afiş solda, künye (`<dl>`) sağda; mobilde alt alta akış, program tablosu |
