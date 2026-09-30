@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kampüs Etkinlikleri — Etkinlik Güncelle</title>
+  <link rel="stylesheet" href="css/2416501002.css">
+</head>
+<body>
+
+  <header>
+    <div class="header-icerik">
+      <div>
+        <h1>Etkinlik Güncelle</h1>
+        <p>Mevcut etkinlik bilgilerini düzenleyin</p>
+      </div>
+      <nav>
+        <a href="index.html">Ana Sayfa</a>
+        <a href="etkinlikler.html">Etkinlikler</a>
+        <a href="etkinlik-ekle.html">Etkinlik Ekle</a>
+        <a href="etkinlik-guncelle.html" class="aktif">Etkinlik Güncelle</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="form-kart">
+      <h2>Etkinlik Bilgilerini Düzenle</h2>
+      <p class="form-bilgi">Alanlar mevcut etkinliğin bilgileriyle dolu gelir. Güncellemeleri tamamladıktan sonra kaydedin.</p>
+
+      <form action="etkinlik-detay.html" method="get">
+        <div class="form-grup">
+          <label for="ad">Etkinlik Adı *</label>
+          <input type="text" id="ad" name="ad" value="Kariyer Günleri 2026" maxlength="80" required>
+        </div>
+
+        <div class="form-grup">
+          <label for="kategori">Kategori *</label>
+          <select id="kategori" name="kategori" required>
+            <option value="seminer" selected>Seminer</option>
+            <option value="atolye">Atölye</option>
+            <option value="soylesi">Söyleşi</option>
+            <option value="yarisma">Yarışma</option>
+          </select>
+        </div>
+
+        <div class="form-grup">
+          <label for="tarih">Tarih *</label>
+          <input type="date" id="tarih" name="tarih" value="2026-10-12" required>
+        </div>
+
+        <div class="form-grup">
+          <label for="saat">Saat *</label>
+          <input type="time" id="saat" name="saat" value="14:00" required>
+        </div>
+
+        <div class="form-grup">
+          <label for="yer">Yer *</label>
+          <input type="text" id="yer" name="yer" value="A Blok Konferans Salonu" maxlength="80" required>
+        </div>
+
+        <div class="form-grup">
+          <label for="kontenjan">Kontenjan</label>
+          <input type="number" id="kontenjan" name="kontenjan" value="120" min="1" max="1000">
+        </div>
+
+        <div class="form-grup">
+          <label for="aciklama">Açıklama</label>
+          <textarea id="aciklama" name="aciklama" rows="5">Mezunlarla kariyer söyleşileri ve şirket standları.</textarea>
+        </div>
+
+        <div class="form-butonlar">
+          <button type="submit" class="buton-guncelle">Güncelle</button>
+          <button type="reset">Değişiklikleri geri al</button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <footer>
+    <p>Mehmet Kutlu &middot; 2416501002 &middot; 2026</p>
+  </footer>
+
+</body>
+</html>

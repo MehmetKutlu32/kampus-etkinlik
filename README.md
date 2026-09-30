@@ -15,9 +15,20 @@ Kampüs içindeki seminer, atölye ve söyleşilerin listelendiği, detayların�
 .
 ├── .gitignore
 ├── README.md
-└── sprint1/
+├── sprint1/
+│   ├── README.md
+│   ├── afis.jpg
+│   ├── index.html
+│   ├── etkinlikler.html
+│   ├── etkinlik-detay.html
+│   ├── etkinlik-ekle.html
+│   └── etkinlik-guncelle.html
+└── sprint2/
     ├── README.md
     ├── afis.jpg
+    ├── css/
+    │   ├── 2416501002.css
+    │   └── numaran.css
     ├── index.html
     ├── etkinlikler.html
     ├── etkinlik-detay.html
@@ -31,4 +42,10 @@ Kampüs içindeki seminer, atölye ve söyleşilerin listelendiği, detayların�
 
 - **[Sprint 1 (HTML ve Git)](./sprint1/README.md)**
   - Semantik HTML yapısı, formlar, tablolar ve afiş tasarımı tamamlandı.
-  - Canlı Önizleme: [Vercel](https://web-tech-project-orpin.vercel.app)
+
+- **[Sprint 2 (CSS ve Responsive Tasarım)](./sprint2/README.md)**
+  - Numaraya göre dinamik renk tonu (`--ton: mod(2416501002, 360) = 282`), son haneye (`2`) göre `--font: Tahoma` uygulandı.
+  - Tablodan CSS Grid kart yapısına geçildi (`<section>` > `<article>`).
+  - Mobil öncelikli tam responsive tasarım (tek sütun mobilde, çok sütun masaüstünde).
+  - Geniş ekranda afiş solda, künye (`dl`) sağda yerleşim.
+  - Formlarda etiketler üstte, hatalı/boş alanlar kırmızı ile belirgin.
