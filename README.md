@@ -7,7 +7,7 @@ Kampüs içindeki seminer, atölye ve söyleşilerin listelendiği, detayların�
 - **Öğrenci:** Mehmet Kutlu — 2416501002
 - **Ders:** Web Teknolojileri ve Programlama
 - **Canlı Adres:** [https://web-tech-project-orpin.vercel.app](https://web-tech-project-orpin.vercel.app)
-- **Örnek Detay:** [https://web-tech-project-orpin.vercel.app/etkinlik-detay.html?id=event-3](https://web-tech-project-orpin.vercel.app/etkinlik-detay.html?id=event-3)
+- **Örnek Detay:** Canlı adreste Etkinlikler → "Detayları gör" (Sprint 4'ten itibaren detay sayfası state ile açılır, `?id=` adresi yoktur)
 - **GitHub Repository:** [https://github.com/MehmetKutlu32/kampus-etkinlik](https://github.com/MehmetKutlu32/kampus-etkinlik)
 
 ---
@@ -36,21 +36,37 @@ Kampüs içindeki seminer, atölye ve söyleşilerin listelendiği, detayların�
 │   ├── etkinlik-detay.html
 │   ├── etkinlik-ekle.html
 │   └── etkinlik-guncelle.html
-└── sprint3/
+├── sprint3/
+│   ├── README.md
+│   ├── afis.jpg
+│   ├── css/
+│   │   └── 2416501002.css
+│   ├── js/
+│   │   ├── data.js
+│   │   ├── event-list.js
+│   │   ├── event-detail.js
+│   │   └── event-form.js
+│   ├── index.html
+│   ├── etkinlikler.html
+│   ├── etkinlik-detay.html
+│   ├── etkinlik-ekle.html
+│   └── etkinlik-guncelle.html
+└── frontend/
     ├── README.md
-    ├── afis.jpg
-    ├── css/
-    │   └── 2416501002.css
-    ├── js/
-    │   ├── data.js
-    │   ├── event-list.js
-    │   ├── event-detail.js
-    │   └── event-form.js
     ├── index.html
-    ├── etkinlikler.html
-    ├── etkinlik-detay.html
-    ├── etkinlik-ekle.html
-    └── etkinlik-guncelle.html
+    ├── package.json
+    ├── vite.config.ts
+    ├── public/
+    │   ├── afis.svg
+    │   └── favicon.svg
+    └── src/
+        ├── App.tsx
+        ├── App.css
+        ├── index.css
+        ├── main.tsx
+        ├── data/events.ts
+        ├── types/campus-event.ts
+        └── utils/filter-events.ts
 ```
 
 ---
@@ -74,3 +90,10 @@ Kampüs içindeki seminer, atölye ve söyleşilerin listelendiği, detayların�
   - `URLSearchParams` ile `?id=` parametresine göre detay sayfası oluşturuldu; geçersiz id'de kırmızı hata kutusu gösterildi.
   - Formlarda tarayıcı balonları kapatılarak (`novalidate`) JavaScript ile alan doğrulaması, hata bildirimleri ve başarı durumunda JSON gösterimi yapıldı.
   - Güncelleme sayfası detay sayfasından id ile açıldığında otomatik dolduruldu, id'siz açıldığında uyarı kutusu gösterildi.
+
+- **[Sprint 4 (Vite, TypeScript ve React)](./frontend/README.md)**
+  - Aynı site `frontend/` klasöründe Vite + React + TypeScript ile yeniden yazıldı.
+  - `CampusEvent` arayüzü ve `Category` union tipi tanımlandı; veri `data/events.ts` içinde tipli tutuldu.
+  - Arama, kategori filtresi ve id ile bulma işleri `utils/filter-events.ts` içinde saf fonksiyonlara ayrıldı.
+  - 5 sayfa tek `App.tsx` içinde `useState` ile değişir (Router yok); listeler `map` + `key` ile çizilir, sekme başlığı `useEffect` ile güncellenir.
+  - Vercel ayarı: Root Directory `frontend`, Framework Preset `Vite`.
