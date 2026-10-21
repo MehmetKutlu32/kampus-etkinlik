@@ -47,16 +47,12 @@ body {
 }
 
 /* Üst Başlık ve Navigasyon Çubuğu */
-header {
+/* Header ve Navigation ayrı bileşenler; ortak çerçeve App'teki .site-ust */
+.site-ust {
   background-color: var(--renk-ana);
   color: #ffffff;
-  padding: var(--bosluk-m);
+  padding: var(--bosluk-m) max(var(--bosluk-m), calc((100% - 1000px) / 2));
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
-
-.header-icerik {
-  max-width: 1000px;
-  margin: 0 auto;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -139,15 +135,12 @@ main h2 {
   display: grid;
   gap: var(--bosluk-l);
   width: 100%;
-}
-
-/* Geniş Ekran Sütun Dağılımı */
-.etkinlik-kartlari.uc-sutun {
-  grid-template-columns: repeat(3, 1fr);
-}
-
-.etkinlik-kartlari.iki-sutun {
   grid-template-columns: repeat(2, 1fr);
+}
+
+/* Geniş Ekran Sütun Dağılımı: Etkinlikler sayfasında (filtre formundan sonra) 3 sütun */
+.filtre-formu ~ .etkinlik-kartlari {
+  grid-template-columns: repeat(3, 1fr);
 }
 
 /* Kart Tasarımı */
@@ -564,7 +557,8 @@ footer p {
 }
 
 /* Sonuç Bilgi Satırı */
-.filtre-sonuc {
+.filtre-sonuc,
+.sonuc {
   font-size: 0.95rem;
   font-weight: 600;
   color: var(--renk-metin-hafif);
@@ -697,7 +691,7 @@ footer p {
    Responsive Tasarım - Telefonda Düzgün Görünüm (Mobil Öncelikli Uyumluluk)
    ========================================================================== */
 @media (max-width: 768px) {
-  .header-icerik {
+  .site-ust {
     flex-direction: column;
     align-items: flex-start;
     gap: var(--bosluk-s);
@@ -720,8 +714,8 @@ footer p {
   }
 
   /* Telefonda kartlar tek sütun, taşma yok */
-  .etkinlik-kartlari.uc-sutun,
-  .etkinlik-kartlari.iki-sutun {
+  .etkinlik-kartlari,
+  .filtre-formu ~ .etkinlik-kartlari {
     grid-template-columns: 1fr;
     gap: var(--bosluk-m);
   }
