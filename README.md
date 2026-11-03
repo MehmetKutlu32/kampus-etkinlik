@@ -52,7 +52,6 @@ Kampüs içindeki seminer, atölye ve söyleşilerin listelendiği, detayların�
 │   ├── etkinlik-ekle.html
 │   └── etkinlik-guncelle.html
 └── frontend/
-    ├── README.md
     ├── index.html
     ├── package.json
     ├── vercel.json
@@ -128,7 +127,7 @@ npm run dev      # http://localhost:5173
   - Formlarda tarayıcı balonları kapatılarak (`novalidate`) JavaScript ile alan doğrulaması, hata bildirimleri ve başarı durumunda JSON gösterimi yapıldı.
   - Güncelleme sayfası detay sayfasından id ile açıldığında otomatik dolduruldu, id'siz açıldığında uyarı kutusu gösterildi.
 
-- **[Sprint 4 (Vite, TypeScript ve React)](./frontend/README.md)**
+- **Sprint 4 (Vite, TypeScript ve React)**
   - Aynı site `frontend/` klasöründe Vite + React + TypeScript ile yeniden yazıldı.
   - `CampusEvent` arayüzü ve `Category` union tipi tanımlandı; veri `data/events.ts` içinde tipli tutuldu.
   - Arama, kategori filtresi ve id ile bulma işleri `utils/filter-events.ts` içinde saf fonksiyonlara ayrıldı.
