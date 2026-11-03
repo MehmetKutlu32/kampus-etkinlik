@@ -55,12 +55,10 @@ function LoginPage() {
           <button type="submit">Giriş yap</button>
         </div>
       </form>
-      <p>
+      <p className="form-linkler">
         <Link to="/forgot-password" className="listeye-don-link">
           Şifremi unuttum
         </Link>
-      </p>
-      <p>
         <Link to="/register" className="listeye-don-link">
           Hesabın yok mu? Kayıt ol
         </Link>

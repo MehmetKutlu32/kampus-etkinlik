@@ -762,6 +762,13 @@ footer p {
   }
 }
 
+/* Giriş sayfasındaki iki bağlantı yan yana */
+.form-linkler {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--bosluk-m);
+}
+
 /* ==========================================================================
    Sprint 6: Yönetim Tablosu — masaüstünde tablo, telefonda kart
    ========================================================================== */
