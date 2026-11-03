@@ -102,7 +102,8 @@ nav a:focus-visible {
   outline: none;
 }
 
-nav a.aktif {
+/* NavLink açık sayfaya aria-current="page" ekler */
+nav a[aria-current="page"] {
   background-color: rgba(255, 255, 255, 0.28);
 }
 
@@ -382,6 +383,8 @@ dd {
 }
 
 .form-grup input[type="text"],
+.form-grup input[type="email"],
+.form-grup input[type="password"],
 .form-grup input[type="date"],
 .form-grup input[type="time"],
 .form-grup input[type="number"],
@@ -759,3 +762,67 @@ footer p {
   }
 }
 
+/* ==========================================================================
+   Sprint 6: Yönetim Tablosu — masaüstünde tablo, telefonda kart
+   ========================================================================== */
+.tablo {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--renk-kart-zemin);
+}
+
+.tablo th,
+.tablo td {
+  padding: var(--bosluk-s) var(--bosluk-m);
+  text-align: left;
+}
+
+.tablo tr {
+  border-bottom: 1px solid var(--renk-kenarlik);
+}
+
+.tablo th {
+  background: var(--renk-ana);
+  color: #fff;
+}
+
+.islemler {
+  display: flex;
+  gap: var(--bosluk-s);
+}
+
+.buton-sil,
+.buton-sil:hover {
+  background: var(--renk-hata);
+  border: none;
+  font-family: var(--font);
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+@media (max-width: 699px) {
+  .tablo thead {
+    display: none;
+  }
+
+  .tablo tr {
+    display: block;
+    border: 1px solid var(--renk-kenarlik);
+    border-radius: var(--kose);
+    margin-bottom: var(--bosluk-m);
+    padding: var(--bosluk-s);
+  }
+
+  .tablo td {
+    display: block;
+  }
+
+  .tablo td.islemler {
+    display: flex;
+  }
+
+  .tablo td[data-baslik]::before {
+    content: attr(data-baslik) ": ";
+    font-weight: 700;
+  }
+}
