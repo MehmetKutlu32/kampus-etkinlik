@@ -2,7 +2,7 @@
 
 # Kampüs Etkinlikleri
 
-Kampüs içindeki seminer, atölye ve söyleşilerin listelendiği, detaylarının görüntülendiği ve yeni etkinlik eklenip güncellenebildiği web uygulaması.
+Kampüs içindeki seminer, atölye ve söyleşilerin listelendiği, detaylarının görüntülendiği ve yeni etkinlik eklenip güncellenebildiği web uygulaması. Repoda iki uygulama vardır: `frontend/` (React + Vite) ve `backend/` (Node.js + Express REST API).
 
 - **Öğrenci:** Mehmet Kutlu — 2416501002
 - **Ders:** Web Teknolojileri ve Programlama
@@ -51,41 +51,64 @@ Kampüs içindeki seminer, atölye ve söyleşilerin listelendiği, detayların�
 │   ├── etkinlik-detay.html
 │   ├── etkinlik-ekle.html
 │   └── etkinlik-guncelle.html
-└── frontend/
-    ├── index.html
+├── frontend/
+│   ├── index.html
+│   ├── package.json
+│   ├── vercel.json
+│   ├── vite.config.ts
+│   ├── public/
+│   │   ├── afis.svg
+│   │   └── favicon.svg
+│   └── src/
+│       ├── App.tsx
+│       ├── App.css
+│       ├── index.css
+│       ├── main.tsx
+│       ├── components/
+│       │   ├── layout/   Header, Navigation, Footer
+│       │   ├── events/   EventCard, EventList, EventFilter, EventDetail
+│       │   └── forms/    EventForm
+│       ├── context/EventsContext.tsx
+│       ├── pages/        HomePage, EventsPage, EventDetailPage,
+│       │                 AdminPage, AddEventPage, EditEventPage,
+│       │                 LoginPage, RegisterPage, ForgotPasswordPage,
+│       │                 NotFoundPage
+│       ├── data/events.ts
+│       ├── types/campus-event.ts
+│       └── utils/        filter-events.ts, format-date.ts, validate-event.ts
+└── backend/
+    ├── README.md                REST sözleşmesi ve çalıştırma
     ├── package.json
-    ├── vercel.json
-    ├── vite.config.ts
-    ├── public/
-    │   ├── afis.svg
-    │   └── favicon.svg
+    ├── .env.example
+    ├── .gitignore
+    ├── requests/kampus-api.json Postman collection (6 istek)
     └── src/
-        ├── App.tsx
-        ├── App.css
-        ├── index.css
-        ├── main.tsx
-        ├── components/
-        │   ├── layout/   Header, Navigation, Footer
-        │   ├── events/   EventCard, EventList, EventFilter, EventDetail
-        │   └── forms/    EventForm
-        ├── context/EventsContext.tsx
-        ├── pages/        HomePage, EventsPage, EventDetailPage,
-        │                 AdminPage, AddEventPage, EditEventPage,
-        │                 LoginPage, RegisterPage, ForgotPasswordPage,
-        │                 NotFoundPage
-        ├── data/events.ts
-        ├── types/campus-event.ts
-        └── utils/        filter-events.ts, format-date.ts, validate-event.ts
+        ├── app.js               Express uygulaması, middleware, route bağlama
+        ├── server.js            .env'i okur, portu dinler
+        ├── routes/event-routes.js
+        ├── controllers/event-controller.js
+        └── data/events.js       Bellek içi 6 etkinlik
 ```
 
 ---
 
 ## ⚙️ Kurulum
 
+**Frontend**
+
 ```bash
 cd frontend
 npm install
 npm run dev      # http://localhost:5173
+```
+
+**Backend**
+
+```bash
+cd backend
+npm install
+cp .env.example .env
+npm run dev      # http://localhost:3000
 ```
 
 ---
@@ -104,6 +127,19 @@ npm run dev      # http://localhost:5173
 | `/admin/new` | AddEventPage |
 | `/admin/:id/edit` | EditEventPage |
 | `*` | NotFoundPage |
+
+---
+
+## 🔌 Backend API
+
+Ayrıntılar ve REST sözleşmesi: [backend/README.md](./backend/README.md)
+
+| Method | Endpoint | Başarılı | Hata |
+| --- | --- | --- | --- |
+| GET | `/health` | 200 | — |
+| GET | `/events` | 200 | — |
+| GET | `/events/:id` | 200 | 404 |
+| POST | `/events` | 201 | 400 |
 
 ---
 
@@ -142,3 +178,13 @@ npm run dev      # http://localhost:5173
   - Yönetim sayfasında tablo, Düzenle ve onaylı Sil; tablo telefonda karta dönüşür.
   - Giriş, kayıt ve şifremi unuttum sayfalarında form doğrulaması (bilgiler hiçbir yere gönderilmez).
   - `vercel.json` ile tüm adresler `index.html`'e yönlenir; adres elle yazıldığında ve sayfa yenilendiğinde de doğru sayfa açılır.
+
+- **[Sprint 7 (Express ile REST API)](./backend/README.md)**
+  - Repoya ikinci uygulama olarak `backend/` eklendi: Node.js + Express, `"type": "module"` ile import/export.
+  - Kod görevlerine göre ayrıldı: `app.js` (middleware ve route bağlama), `server.js` (portu dinler), `routes/` (adres eşleme), `controllers/` (iş mantığı), `data/` (bellek içi veri).
+  - Port `.env` dosyasından `dotenv` ile okunur; `.env` GitHub'a gönderilmez, gerekli değişkenler `.env.example` içinde.
+  - `GET /health` sunucunun ayakta olduğunu ve öğrenci numarasını döndürür.
+  - `GET /events` (isteğe bağlı `?category=` filtresi), `GET /events/:id` (bulunamazsa 404) ve `POST /events` (başarılıysa 201, `title`/`category`/`date` eksikse 400) yazıldı; bütün hatalar `{ "error": { "message": "..." } }` biçiminde döner.
+  - 6 etkinlik backend'e kendi içerikleriyle taşındı; veri bellekte tutulur, sunucu yeniden başlayınca POST ile eklenenler kaybolur.
+  - 6 test isteği Postman'de "Kampüs API" collection'ı olarak hazırlandı ve `backend/requests/kampus-api.json` olarak dışa aktarıldı.
+  - Backend bu sprintte canlıya alınmadı; frontend değişmedi.
