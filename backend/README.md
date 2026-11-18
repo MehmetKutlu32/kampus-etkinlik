@@ -112,6 +112,9 @@ Doğrulamayı schema yapar; controller Mongoose'un `ValidationError`'ını `400`
 | `category: "Parti"` | 400 · enum |
 | `title: "X"` | 400 · minlength |
 | Bozuk JSON | 400 · `Invalid JSON body` |
+| JSON olmayan body (Text, form-data) | 400 · `Body must be JSON (Content-Type: application/json)` |
+
+> **Postman'de POST kaydetmiyorsa:** Body sekmesinde **raw** seçili olmalı ve sağdaki tür **Text değil JSON** olmalı. Text ya da form-data seçilirse istek `application/json` olarak gitmez, sunucu body'yi okuyamaz ve 400 döner. Ayrıca `npm run seed` her çalıştığında `events` collection'ını sıfırlar; POST ile eklenenler de silinir.
 
 ### Hata middleware'i
 
@@ -157,3 +160,14 @@ backend/
 3. Terminalde `Ctrl+C` ile sunucuyu durdur, tekrar `npm run dev`
 4. `GET /events` → 7 kayıt, yeni etkinlik listede
 5. Atlas › Browse Collections › `kampus.events` içinde de görünür
+
+## Teslim Kontrol Listesi
+
+- [x] `npm install` + `npm run dev` çalışıyor (temiz klonda, `.env` yalnızca yerelde)
+- [x] Bağlantı ayrı modülde (`src/config/database.js`), URI `.env`'den okunuyor, `.env.example`'da `MONGODB_URI` var
+- [x] Schema'da `required`, `trim`, `timestamps` ve kısıtlar (`minlength`, `maxlength`, `enum`, `min`) var
+- [x] `npm run seed` 6 kayıt ekliyor; iki kez çalışınca da 6 kayıt
+- [x] `GET /events` ve `GET /events/:id` MongoDB'den okuyor; olmayan ve geçersiz id 404
+- [x] `POST` 201 dönüyor; eksik veri 400 dönüyor ve sunucu çökmüyor (`/health` hâlâ 200)
+- [x] Sunucu yeniden başlayınca `POST` ile eklenen kayıt duruyor
+- [x] Git geçmişinde gerçek Atlas adresi/şifresi, `.env` ve `node_modules` yok

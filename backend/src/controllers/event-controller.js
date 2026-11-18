@@ -38,6 +38,13 @@ export async function getEventById(req, res, next) {
 // ValidationError'ı 400'e çevirir. Sadece bilinen alanlar alınır.
 export async function createEvent(req, res, next) {
   try {
+    // Postman'de Body › raw › Text ya da form-data seçilirse express.json
+    // body'yi okumaz; "title required" yerine asıl sorunu söyleyelim.
+    if (!req.is("application/json")) {
+      return res.status(400).json({
+        error: { message: "Body must be JSON (Content-Type: application/json)" },
+      });
+    }
     const { title, category, capacity, date, time, location, description } =
       req.body ?? {};
     const event = await Event.create({
