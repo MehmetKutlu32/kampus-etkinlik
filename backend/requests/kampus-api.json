@@ -104,6 +104,15 @@
       "request": {
         "method": "POST",
         "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"title\":\"Git Atölyesi 2.gün\",\"category\":\"Atölye\",\"date\":\"2026-12-02\",\"capacity\":30}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
         "url": {
           "raw": "http://localhost:3000/events",
           "protocol": "http",
@@ -114,15 +123,6 @@
           "path": [
             "events"
           ]
-        },
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"title\": \"Git Atölyesi\",\n  \"category\": \"Atölye\",\n  \"date\": \"2026-12-01\",\n  \"capacity\": 30\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
         }
       },
       "response": []
@@ -132,6 +132,15 @@
       "request": {
         "method": "POST",
         "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{ \"title\": \"Deneme\" }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
         "url": {
           "raw": "http://localhost:3000/events",
           "protocol": "http",
@@ -142,15 +151,6 @@
           "path": [
             "events"
           ]
-        },
-        "body": {
-          "mode": "raw",
-          "raw": "{ \"title\": \"Deneme\" }",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
         }
       },
       "response": []
