@@ -2,7 +2,7 @@
 
 # Kampüs Etkinlikleri
 
-Kampüs içindeki seminer, atölye ve söyleşilerin listelendiği, detaylarının görüntülendiği ve yeni etkinlik eklenip güncellenebildiği web uygulaması. Repoda iki uygulama vardır: `frontend/` (React + Vite) ve `backend/` (Node.js + Express REST API).
+Kampüs içindeki seminer, atölye ve söyleşilerin listelendiği, detaylarının görüntülendiği ve yeni etkinlik eklenip güncellenebildiği web uygulaması. Repoda iki uygulama vardır: `frontend/` (React + Vite) ve `backend/` (Node.js + Express REST API, veriler MongoDB'de).
 
 - **Öğrenci:** Mehmet Kutlu — 2416501002
 - **Ders:** Web Teknolojileri ve Programlama
@@ -81,13 +81,16 @@ Kampüs içindeki seminer, atölye ve söyleşilerin listelendiği, detayların�
     ├── package.json
     ├── .env.example
     ├── .gitignore
-    ├── requests/kampus-api.json Postman collection (6 istek)
+    ├── requests/kampus-api.json Postman collection (7 istek)
     └── src/
-        ├── app.js               Express uygulaması, middleware, route bağlama
-        ├── server.js            .env'i okur, portu dinler
+        ├── app.js               Express uygulaması, middleware, route bağlama, hata yakalayıcı
+        ├── server.js            .env'i okur, önce MongoDB'ye bağlanır, sonra portu dinler
+        ├── seed.js              npm run seed: 6 örnek etkinliği veritabanına yazar
+        ├── config/database.js   MONGODB_URI ile Mongoose bağlantısı
+        ├── models/event-model.js Event schema'sı ve modeli
+        ├── data/seed-events.js  Seed için 6 örnek etkinlik
         ├── routes/event-routes.js
-        ├── controllers/event-controller.js
-        └── data/events.js       Bellek içi 6 etkinlik
+        └── controllers/event-controller.js
 ```
 
 ---
@@ -107,8 +110,9 @@ npm run dev      # http://localhost:5173
 ```bash
 cd backend
 npm install
-cp .env.example .env
-npm run dev      # http://localhost:3000
+cp .env.example .env   # MONGODB_URI'yi kendi adresinle değiştir
+npm run seed           # 6 örnek etkinlik
+npm run dev            # http://localhost:3000
 ```
 
 ---
@@ -140,6 +144,8 @@ Ayrıntılar ve REST sözleşmesi: [backend/README.md](./backend/README.md)
 | GET | `/events` | 200 | — |
 | GET | `/events/:id` | 200 | 404 |
 | POST | `/events` | 201 | 400 |
+
+Sprint 8'den itibaren etkinlikler MongoDB'de tutulur; kimlikler MongoDB `_id`'sidir. Bağlantı adresi yalnızca `backend/.env` dosyasındadır.
 
 ---
 
@@ -188,3 +194,13 @@ Ayrıntılar ve REST sözleşmesi: [backend/README.md](./backend/README.md)
   - 6 etkinlik backend'e kendi içerikleriyle taşındı; veri bellekte tutulur, sunucu yeniden başlayınca POST ile eklenenler kaybolur.
   - 6 test isteği Postman'de "Kampüs API" collection'ı olarak hazırlandı ve `backend/requests/kampus-api.json` olarak dışa aktarıldı.
   - Backend bu sprintte canlıya alınmadı; frontend değişmedi.
+
+- **[Sprint 8 (MongoDB ve Mongoose ile kalıcı veri)](./backend/README.md)**
+  - Bellek içi dizi kaldırıldı; etkinlikler MongoDB'deki `kampus` veritabanının `events` collection'ında tutulur. Adresler ve status code'lar değişmedi, frontend'e dokunulmadı.
+  - `config/database.js` bağlantıyı `.env`'deki `MONGODB_URI` ile kurar; `server.js` önce veritabanına bağlanır, sonra portu dinler. Terminale şifre değil, yalnızca host ve veritabanı adı yazılır.
+  - `models/event-model.js` içinde `Event` schema'sı: `required`, `trim`, `minlength`/`maxlength`, `enum`, `min`/`default` kuralları ve `timestamps` (`createdAt`, `updatedAt`).
+  - `npm run seed` önce `deleteMany`, sonra `insertMany` ile 6 etkinlik ekler; iki kez çalıştırılınca da 6 kayıt kalır.
+  - Controller'lar `async`/`await` ve `try`/`catch` ile `Event.find`, `findById`, `create` kullanır. Biçimi yanlış id `isValidObjectId` ile 404 döner (500 değil); doğrulama hatası (`ValidationError`) 400'e çevrilir.
+  - `app.js` sonuna 4 parametreli hata middleware'i eklendi; beklenmeyen hatalar `500 Server error` döner, sunucu çökmez.
+  - Postman collection'ı güncellendi: liste isteği ilk `_id`'yi `eventId` değişkenine yazar, tek etkinlik isteği onu kullanır; kaydı olmayan `_id` için 404 isteği eklendi.
+  - Sunucu kapatılıp açıldığında `POST` ile eklenen etkinliğin durduğu test edildi.
