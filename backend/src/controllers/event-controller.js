@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 import { Event } from "../models/event-model.js";
-import { events } from "../data/events.js";
 
 // GET /events  (?category=Atölye isteğe bağlı)
 // await unutulursa res.json'a liste yerine Promise gider, yanıt {} olur.
@@ -35,27 +34,26 @@ export async function getEventById(req, res, next) {
 }
 
 // POST /events
-export function createEvent(req, res) {
-  const { title, category, capacity, date, time, location, description } =
-    req.body ?? {};
-
-  if (!title || !category || !date) {
-    return res
-      .status(400)
-      .json({ error: { message: "title, category and date are required" } });
+// Doğrulamayı schema yapar (required, enum, minlength...); controller
+// ValidationError'ı 400'e çevirir. Sadece bilinen alanlar alınır.
+export async function createEvent(req, res, next) {
+  try {
+    const { title, category, capacity, date, time, location, description } =
+      req.body ?? {};
+    const event = await Event.create({
+      title,
+      category,
+      capacity,
+      date,
+      time,
+      location,
+      description,
+    });
+    res.status(201).json(event);
+  } catch (err) {
+    if (err.name === "ValidationError") {
+      return res.status(400).json({ error: { message: err.message } });
+    }
+    next(err);
   }
-
-  const newEvent = {
-    id: `event-${Date.now()}`,
-    title,
-    category,
-    date,
-    capacity: Number(capacity) || 0,
-    time: time ?? "",
-    location: location ?? "",
-    description: description ?? "",
-  };
-
-  events.push(newEvent);
-  res.status(201).json(newEvent);
 }
