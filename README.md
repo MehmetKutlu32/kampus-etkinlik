@@ -79,6 +79,7 @@ Kampüs içindeki seminer, atölye ve söyleşilerin listelendiği, detayların�
 └── backend/
     ├── README.md                REST sözleşmesi ve çalıştırma
     ├── package.json
+    ├── package-lock.json
     ├── .env.example
     ├── .gitignore
     ├── requests/kampus-api.json Postman collection (7 istek)
