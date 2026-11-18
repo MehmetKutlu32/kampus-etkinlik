@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { Event } from "../models/event-model.js";
 import { events } from "../data/events.js";
 
@@ -16,12 +17,21 @@ export async function getEvents(req, res, next) {
 }
 
 // GET /events/:id
-export function getEventById(req, res) {
-  const event = events.find((e) => e.id === req.params.id);
-  if (!event) {
-    return res.status(404).json({ error: { message: "Event not found" } });
+// Biçimi yanlış id ("yok") kontrol edilmezse Mongoose CastError fırlatır ve
+// yanıt 500 olur; bu yüzden önce isValidObjectId ile 404 döneriz.
+export async function getEventById(req, res, next) {
+  try {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      return res.status(404).json({ error: { message: "Event not found" } });
+    }
+    const event = await Event.findById(req.params.id);
+    if (!event) {
+      return res.status(404).json({ error: { message: "Event not found" } });
+    }
+    res.json(event);
+  } catch (err) {
+    next(err);
   }
-  res.json(event);
 }
 
 // POST /events
