@@ -1,12 +1,18 @@
+import { Event } from "../models/event-model.js";
 import { events } from "../data/events.js";
 
 // GET /events  (?category=Atölye isteğe bağlı)
-export function getEvents(req, res) {
-  const { category } = req.query;
-  const list = category
-    ? events.filter((e) => e.category === category)
-    : events;
-  res.json(list);
+// await unutulursa res.json'a liste yerine Promise gider, yanıt {} olur.
+export async function getEvents(req, res, next) {
+  try {
+    const filter = req.query.category
+      ? { category: String(req.query.category) }
+      : {};
+    const list = await Event.find(filter).sort({ date: 1 });
+    res.json(list);
+  } catch (err) {
+    next(err); // hata middleware'ine gider, sunucu çökmez
+  }
 }
 
 // GET /events/:id
