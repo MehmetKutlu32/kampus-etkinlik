@@ -27,6 +27,21 @@
     },
     {
       "name": "2 Etkinlik listesi",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Listeden ilk etkinliğin _id'sini 3. istek için sakla",
+              "const list = pm.response.json();",
+              "if (Array.isArray(list) && list.length > 0) {",
+              "  pm.collectionVariables.set(\"eventId\", list[0]._id);",
+              "}"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "GET",
         "header": [],
@@ -50,7 +65,7 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:3000/events/event-2",
+          "raw": "http://localhost:3000/events/{{eventId}}",
           "protocol": "http",
           "host": [
             "localhost"
@@ -58,7 +73,7 @@
           "port": "3000",
           "path": [
             "events",
-            "event-2"
+            "{{eventId}}"
           ]
         }
       },
@@ -89,15 +104,6 @@
       "request": {
         "method": "POST",
         "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n  \"title\": \"Git Atölyesi\",\r\n  \"category\": \"Atölye\",\r\n  \"date\": \"2026-12-01\",\r\n  \"capacity\": 30\r\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
         "url": {
           "raw": "http://localhost:3000/events",
           "protocol": "http",
@@ -108,82 +114,35 @@
           "path": [
             "events"
           ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Git Atölyesi\",\n  \"category\": \"Atölye\",\n  \"date\": \"2026-12-01\",\n  \"capacity\": 30\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
         }
       },
-      "response": [
-        {
-          "name": "http://localhost:3000/events",
-          "originalRequest": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{ \"title\": \"Deneme\" }",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "http://localhost:3000/events",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "events"
-              ]
-            }
-          },
-          "status": "Bad Request",
-          "code": 400,
-          "_postman_previewlanguage": "json",
-          "header": [
-            {
-              "key": "x-powered-by",
-              "value": "Express"
-            },
-            {
-              "key": "access-control-allow-origin",
-              "value": "*"
-            },
-            {
-              "key": "content-type",
-              "value": "application/json; charset=utf-8"
-            },
-            {
-              "key": "content-length",
-              "value": "61"
-            },
-            {
-              "key": "etag",
-              "value": "W/\"3d-TsZb2zE1ir8CDc8lZuR0XJSqehk\""
-            },
-            {
-              "key": "date",
-              "value": "Wed, 11 Nov 2026 08:04:57 GMT"
-            },
-            {
-              "key": "connection",
-              "value": "keep-alive"
-            },
-            {
-              "key": "keep-alive",
-              "value": "timeout=5"
-            }
-          ],
-          "cookie": [],
-          "body": "{\n  \"error\": {\n    \"message\": \"title, category and date are required\"\n  }\n}"
-        }
-      ]
+      "response": []
     },
     {
       "name": "6 Eksik veri (400)",
       "request": {
         "method": "POST",
         "header": [],
+        "url": {
+          "raw": "http://localhost:3000/events",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "events"
+          ]
+        },
         "body": {
           "mode": "raw",
           "raw": "{ \"title\": \"Deneme\" }",
@@ -192,87 +151,35 @@
               "language": "json"
             }
           }
-        },
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "7 Kaydı olmayan _id (404)",
+      "request": {
+        "method": "GET",
+        "header": [],
         "url": {
-          "raw": "http://localhost:3000/events",
+          "raw": "http://localhost:3000/events/507f1f77bcf86cd799439011",
           "protocol": "http",
           "host": [
             "localhost"
           ],
           "port": "3000",
           "path": [
-            "events"
+            "events",
+            "507f1f77bcf86cd799439011"
           ]
         }
       },
-      "response": [
-        {
-          "name": "http://localhost:3000/events",
-          "originalRequest": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{ \"title\": \"Deneme\" }",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "http://localhost:3000/events",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "events"
-              ]
-            }
-          },
-          "status": "Bad Request",
-          "code": 400,
-          "_postman_previewlanguage": "json",
-          "header": [
-            {
-              "key": "x-powered-by",
-              "value": "Express"
-            },
-            {
-              "key": "access-control-allow-origin",
-              "value": "*"
-            },
-            {
-              "key": "content-type",
-              "value": "application/json; charset=utf-8"
-            },
-            {
-              "key": "content-length",
-              "value": "61"
-            },
-            {
-              "key": "etag",
-              "value": "W/\"3d-TsZb2zE1ir8CDc8lZuR0XJSqehk\""
-            },
-            {
-              "key": "date",
-              "value": "Wed, 11 Nov 2026 08:04:57 GMT"
-            },
-            {
-              "key": "connection",
-              "value": "keep-alive"
-            },
-            {
-              "key": "keep-alive",
-              "value": "timeout=5"
-            }
-          ],
-          "cookie": [],
-          "body": "{\n  \"error\": {\n    \"message\": \"title, category and date are required\"\n  }\n}"
-        }
-      ]
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "eventId",
+      "value": ""
     }
   ]
 }
