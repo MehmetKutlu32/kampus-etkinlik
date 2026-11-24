@@ -1,6 +1,6 @@
 {
   "info": {
-    "_postman_id": "6f151034-f79a-41d1-9703-ddfecc9e8c7c",
+    "_postman_id": "f9123a9a-2c08-45a1-a028-877cb237342a",
     "name": "Kampüs API",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "56895858"
@@ -8,6 +8,17 @@
   "item": [
     {
       "name": "1 Health",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Durum kodu 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "GET",
         "header": [],
@@ -33,6 +44,9 @@
           "script": {
             "type": "text/javascript",
             "exec": [
+              "pm.test(\"Durum kodu 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Yanıt bir dizi\", () => pm.expect(pm.response.json()).to.be.an(\"array\"));",
+              "",
               "// Listeden ilk etkinliğin _id'sini 3. istek için sakla",
               "const list = pm.response.json();",
               "if (Array.isArray(list) && list.length > 0) {",
@@ -61,6 +75,18 @@
     },
     {
       "name": "3 Tek etkinlik",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Durum kodu 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"İstenen etkinlik geldi\", () => pm.expect(pm.response.json()._id).to.eql(pm.collectionVariables.get(\"eventId\")));"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "GET",
         "header": [],
@@ -81,6 +107,17 @@
     },
     {
       "name": "4 Olmayan etkinlik (404)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Durum kodu 404\", () => pm.response.to.have.status(404));"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "GET",
         "header": [],
@@ -101,6 +138,18 @@
     },
     {
       "name": "5 Etkinlik oluştur (201)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Durum kodu 201\", () => pm.response.to.have.status(201));",
+              "pm.test(\"Kayıt _id ile döndü\", () => pm.expect(pm.response.json()).to.have.property(\"_id\"));"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "POST",
         "header": [],
@@ -129,6 +178,17 @@
     },
     {
       "name": "6 Eksik veri (400)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Durum kodu 400\", () => pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "POST",
         "header": [],
@@ -157,6 +217,17 @@
     },
     {
       "name": "7 Kaydı olmayan _id (404)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Durum kodu 404\", () => pm.response.to.have.status(404));"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "GET",
         "header": [],
