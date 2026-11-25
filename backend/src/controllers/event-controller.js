@@ -9,15 +9,21 @@ function notFound(res) {
 // PATCH ile değiştirilemeyecek alanlar
 const KORUNAN_ALANLAR = ["_id", "createdAt", "updatedAt", "__v"];
 
-// GET /events  (?category=Atölye isteğe bağlı)
-// await unutulursa res.json'a liste yerine Promise gider, yanıt {} olur.
+// GET /events  (?search=git & ?category=Atölye isteğe bağlı, ikisi birlikte de olur)
+// Query string'den filtre nesnesi kurulur; await unutulursa res.json'a liste
+// yerine Promise gider, yanıt {} olur.
 export async function getEvents(req, res, next) {
   try {
-    const filter = req.query.category
-      ? { category: String(req.query.category) }
-      : {};
-    const list = await Event.find(filter).sort({ date: 1 });
-    res.json(list);
+    const { category, search } = req.query;
+    const filter = {};
+    if (category) filter.category = String(category);
+    if (search) {
+      // ( * ? gibi işaretler regex'i bozmasın: ?search=( 500 yerine boş liste
+      const guvenli = String(search).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      filter.title = { $regex: guvenli, $options: "i" }; // büyük/küçük harf fark etmez
+    }
+    const events = await Event.find(filter).sort({ date: 1 });
+    res.json(events);
   } catch (err) {
     next(err); // hata middleware'ine gider, sunucu çökmez
   }
