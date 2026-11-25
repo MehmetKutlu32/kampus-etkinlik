@@ -110,3 +110,17 @@ export async function updateEvent(req, res, next) {
     next(err);
   }
 }
+
+// DELETE /events/:id
+// Başarılıysa 204 No Content: yanıtın gövdesi olmaz, bu yüzden res.json değil
+// res.status(204).end(). Aynı kayıt ikinci kez silinmek istenirse 404.
+export async function deleteEvent(req, res, next) {
+  try {
+    if (!mongoose.isValidObjectId(req.params.id)) return notFound(res);
+    const event = await Event.findByIdAndDelete(req.params.id);
+    if (!event) return notFound(res); // ikinci silme de buraya düşer
+    res.status(204).end();
+  } catch (err) {
+    next(err);
+  }
+}
