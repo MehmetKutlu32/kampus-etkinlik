@@ -4,13 +4,17 @@ import {
   deleteEvent,
   getEventById,
   getEvents,
+  getUpcomingEvents,
   updateEvent,
 } from "../controllers/event-controller.js";
 
 const router = Router();
 
-// app.js'te "/events" öneki verildi, buradaki yollar onun devamı
+// app.js'te "/events" öneki verildi, buradaki yollar onun devamı.
+// Express route'ları yukarıdan aşağı dener: sabit adres (/upcoming) /:id'den
+// önce yazılır, yoksa "upcoming" bir id sanılır ve 404 döner.
 router.get("/", getEvents);
+router.get("/upcoming", getUpcomingEvents); // önce
 router.get("/:id", getEventById);
 router.post("/", createEvent);
 router.patch("/:id", updateEvent);

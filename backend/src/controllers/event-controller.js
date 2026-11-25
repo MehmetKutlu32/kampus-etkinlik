@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { Event } from "../models/event-model.js";
+import { todayStart } from "../utils/date.js";
 
 // Olmayan ya da biçimi yanlış id: aynı 404 tek yerde (GET, PATCH, DELETE)
 function notFound(res) {
@@ -26,6 +27,21 @@ export async function getEvents(req, res, next) {
     res.json(events);
   } catch (err) {
     next(err); // hata middleware'ine gider, sunucu çökmez
+  }
+}
+
+// GET /events/upcoming
+// Bugün ve sonrası, en yakın önce. date veritabanında Date olduğu için $gte ve
+// sort tarihi tarih olarak karşılaştırır; yanıtta yine "01-12-2026" görünür.
+export async function getUpcomingEvents(req, res, next) {
+  try {
+    const events = await Event.find({ date: { $gte: todayStart() } }).sort({
+      date: 1,
+      time: 1,
+    });
+    res.json(events);
+  } catch (err) {
+    next(err);
   }
 }
 
