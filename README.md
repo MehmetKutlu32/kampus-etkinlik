@@ -82,15 +82,18 @@ Kampüs içindeki seminer, atölye ve söyleşilerin listelendiği, detayların�
     ├── package-lock.json
     ├── .env.example
     ├── .gitignore
-    ├── requests/kampus-api.json Postman collection (7 istek)
+    ├── requests/
+    │   ├── kampus-api.json      Postman collection (18 istek, 45 test)
+    │   └── run-results.json     Collection Runner sonucu (18 istek, 45 test, 0 hata)
     └── src/
         ├── app.js               Express uygulaması, middleware, route bağlama, hata yakalayıcı
         ├── server.js            .env'i okur, önce MongoDB'ye bağlanır, sonra portu dinler
         ├── seed.js              npm run seed: 6 örnek etkinliği veritabanına yazar
         ├── config/database.js   MONGODB_URI ile Mongoose bağlantısı
+        ├── utils/date.js        GG-AA-YYYY <-> Date (parseDate, formatDate, todayStart)
         ├── models/event-model.js Event schema'sı ve modeli
-        ├── data/seed-events.js  Seed için 6 örnek etkinlik
-        ├── routes/event-routes.js
+        ├── data/seed-events.js  Seed için 6 örnek etkinlik (2'si geçmiş tarihli)
+        ├── routes/event-routes.js /upcoming, /:id'den önce
         └── controllers/event-controller.js
 ```
 
@@ -142,11 +145,14 @@ Ayrıntılar ve REST sözleşmesi: [backend/README.md](./backend/README.md)
 | Method | Endpoint | Başarılı | Hata |
 | --- | --- | --- | --- |
 | GET | `/health` | 200 | — |
-| GET | `/events` | 200 | — |
+| GET | `/events` `?search=` & `?category=` | 200 | — |
+| GET | `/events/upcoming` | 200 · tarihe göre sıralı | — |
 | GET | `/events/:id` | 200 | 404 |
 | POST | `/events` | 201 | 400 |
+| PATCH | `/events/:id` | 200 · güncel kayıt | 400, 404 |
+| DELETE | `/events/:id` | 204 · gövde yok | 404 |
 
-Sprint 8'den itibaren etkinlikler MongoDB'de tutulur; kimlikler MongoDB `_id`'sidir. Bağlantı adresi yalnızca `backend/.env` dosyasındadır.
+Sprint 8'den itibaren etkinlikler MongoDB'de tutulur; kimlikler MongoDB `_id`'sidir. Tarih her yerde `"GG-AA-YYYY"` (`"15-10-2026"`) biçimindedir. Bağlantı adresi yalnızca `backend/.env` dosyasındadır.
 
 ---
 
@@ -205,3 +211,13 @@ Sprint 8'den itibaren etkinlikler MongoDB'de tutulur; kimlikler MongoDB `_id`'si
   - `app.js` sonuna 4 parametreli hata middleware'i eklendi; beklenmeyen hatalar `500 Server error` döner, sunucu çökmez.
   - Postman collection'ı güncellendi: liste isteği ilk `_id`'yi `eventId` değişkenine yazar, tek etkinlik isteği onu kullanır; kaydı olmayan `_id` için 404 isteği eklendi.
   - Sunucu kapatılıp açıldığında `POST` ile eklenen etkinliğin durduğu test edildi.
+
+- **[Sprint 9 (Tam CRUD: PATCH, DELETE ve sorgular)](./backend/README.md)**
+  - `PATCH /events/:id` sadece gönderilen alanları değiştirir ve güncel kaydı döner (`returnDocument: "after"`, `runValidators: true`). Boş body, geçersiz kategori, yanlış tarih ve `_id`/`createdAt` gibi korunan alanlar 400; olmayan id 404.
+  - `DELETE /events/:id` başarılıysa 204 ve gövdesiz (`res.status(204).end()`) döner; aynı kayıt ikinci kez silinince 404.
+  - `GET /events` query string'ten filtre kurar: `?search=` başlıkta büyük/küçük harf duyarsız arar (`$regex`, `$options: "i"`, özel işaretler kaçırılır), `?category=` kategoriye göre süzer; ikisi birlikte de çalışır.
+  - `GET /events/upcoming` bugün ve sonrasını en yakın önce listeler (`$gte: todayStart()`); route `/:id`'den önce yazıldı.
+  - Tarih API'de `"GG-AA-YYYY"`, veritabanında gerçek `Date`: `utils/date.js` ile schema'da `set: parseDate`, `get: formatDate` ve `toJSON: { getters: true }`. Yanlış biçim (`"2026-12-20"`) 400 döner.
+  - Seed'deki 6 etkinliğin 2'si geçmiş tarihli; `/events` 6, `/events/upcoming` 4 kayıt döner.
+  - 404 yanıtı controller'daki tek `notFound` fonksiyonundan çıkar (GET, PATCH, DELETE).
+  - Postman collection 18 istek / 45 teste güncellendi; Collection Runner ve `newman run https://webdersi.vercel.app/test.json` sonucu: 18 istek, 45 test, 0 hata (`backend/requests/run-results.json`). Frontend değişmedi.
