@@ -3,10 +3,10 @@
 Kampüs etkinliklerini JSON olarak veren Node.js + Express REST API'si. Veriler MongoDB'de (Mongoose ile) tutulur. Frontend (`../frontend`) ile aynı repoda ayrı bir uygulamadır.
 
 - **Öğrenci:** Mehmet Kutlu — 2416501002
-- **Sprint:** 8 (MongoDB ve Mongoose ile kalıcı veri)
+- **Sprint:** 9 (Tam CRUD: PATCH, DELETE ve sorgular)
 - **Adres:** http://localhost:3000
 
-Sprint 7'de etkinlikler bellekteki bir dizideydi ve sunucu kapanınca `POST` ile eklenenler kayboluyordu. Sprint 8'de adresler aynı kaldı, verinin yeri değişti: controller'lar `Event` modeli üzerinden MongoDB'ye yazıp okuyor, sunucu kapanıp açılınca kayıtlar duruyor.
+Sprint 7'de etkinlikler bellekteki bir dizideydi; Sprint 8'de MongoDB'ye taşındı. Sprint 9'da CRUD tamamlandı: etkinlik `PATCH` ile güncellenir, `DELETE` ile silinir, `?search` ve `?category` ile aranır, yaklaşan etkinlikler `/events/upcoming` ile ayrı listelenir. Tarih artık her yerde `"GG-AA-YYYY"` (`"15-10-2026"`) biçimindedir.
 
 ## Çalıştırma
 
@@ -49,12 +49,24 @@ API: http://localhost:3000
 | `title` | String | zorunlu, `trim`, 3–100 karakter |
 | `category` | String | zorunlu, yalnızca `Seminer`, `Atölye`, `Söyleşi`, `Yarışma` |
 | `capacity` | Number | en az 0, varsayılan 0 |
-| `date` | String | zorunlu (`YYYY-MM-DD`) |
+| `date` | Date | zorunlu; API'de `"GG-AA-YYYY"` (`set: parseDate`, `get: formatDate`) |
 | `time` | String | varsayılan `""` |
 | `location` | String | `trim`, varsayılan `""` |
 | `description` | String | `trim`, en çok 500 karakter, varsayılan `""` |
 
-`timestamps: true` sayesinde her kayda `createdAt` ve `updatedAt` kendiliğinden eklenir. Kimlik artık `"event-2"` değil, MongoDB'nin verdiği `_id`'dir (ör. `6af57a006f13ad018f7b7a55`).
+Schema seçenekleri: `timestamps: true` (her kayda `createdAt` ve `updatedAt`), `toJSON: { getters: true }` (yanıtta tarih `"2026-12-01T00:00:00.000Z"` değil `"01-12-2026"` görünür) ve `id: false` (getter açılınca eklenen sanal `id` alanı yok, `_id` yeter). Kimlik MongoDB'nin verdiği `_id`'dir (ör. `6af57a006f13ad018f7b7a55`).
+
+### Tarih: API'de `"GG-AA-YYYY"`, veritabanında gerçek `Date`
+
+`src/utils/date.js` içinde üç yardımcı vardır:
+
+| Fonksiyon | Ne yapar |
+|---|---|
+| `parseDate("15-10-2026")` | UTC gece yarısı `Date` döner. Biçim yanlışsa (`"2026-10-15"`) ya da gün yoksa (`"31-02-2026"`) `Invalid Date` döner; Mongoose bunu `Cast to date failed` hatasıyla **400**'e çevirir |
+| `formatDate(date)` | `Date` → `"15-10-2026"` |
+| `todayStart()` | Bugünün başı (UTC 00:00), `/events/upcoming` için |
+
+**Neden metin değil?** `"05-11-2026"` metin olarak `"15-10-2026"`dan küçüktür; Kasım Ekim'den önce sıralanırdı. Tarih `Date` olunca `sort({ date: 1 })` ve `$gte` tarihi tarih olarak karşılaştırır.
 
 | Kavram | Bu projede |
 |---|---|
@@ -62,27 +74,75 @@ API: http://localhost:3000
 | Collection | `events` |
 | Document | Bir etkinlik |
 | Schema | Alanlar ve kurallar (yukarıdaki tablo) |
-| Model | `Event` (`find`, `findById`, `create` buradan gelir) |
-| Seed | `npm run seed` |
+| Model | `Event` (`find`, `findById`, `create`, `findByIdAndUpdate`, `findByIdAndDelete`) |
+| Seed | `npm run seed` (6 etkinlik, 2'si geçmiş tarihli) |
 
 ## REST Sözleşmesi
 
 | Method | Endpoint | Amaç | Başarılı | Hata | Durum |
 |---|---|---|---|---|---|
-| GET | `/health` | Sunucu ayakta mı | 200 | — | Sprint 7 |
-| GET | `/events` | Listeyi tarihe göre sıralı getir (`?category=Atölye` isteğe bağlı) | 200 | — | Sprint 8 (MongoDB) |
-| GET | `/events/:id` | Tek etkinlik (`_id` ile) | 200 | 404 | Sprint 8 (MongoDB) |
-| POST | `/events` | Yeni etkinlik | 201 | 400 | Sprint 8 (MongoDB) |
-| PATCH | `/events/:id` | Güncelle | 200 | 400, 404 | Sprint 9 |
-| DELETE | `/events/:id` | Sil | 204 | 404 | Sprint 9 |
+| GET | `/health` | Sunucu ayakta mı | 200 | — | Çalışıyor |
+| GET | `/events` | Listeyi tarihe göre sıralı getir; `?search=` ve `?category=` isteğe bağlı | 200 | — | Çalışıyor |
+| GET | `/events/upcoming` | Bugün ve sonrası, en yakın önce | 200 · tarihe göre sıralı | — | Çalışıyor |
+| GET | `/events/:id` | Tek etkinlik (`_id` ile) | 200 | 404 | Çalışıyor |
+| POST | `/events` | Yeni etkinlik | 201 | 400 | Çalışıyor |
+| PATCH | `/events/:id` | Sadece gönderilen alanları güncelle | 200 · güncel kayıt | 400, 404 | Çalışıyor |
+| DELETE | `/events/:id` | Sil | 204 · gövde yok | 404 | Çalışıyor |
 
 **Status code'lar:** 200 tamam · 201 oluşturuldu · 204 içerik yok · 400 eksik/yanlış veri · 404 bulunamadı · 500 sunucu hatası
 
-Bütün hatalar aynı biçimde döner:
+Bütün hatalar Sprint 8'deki gibi aynı biçimde döner. Geçersiz ya da olmayan id her yerde (GET, PATCH, DELETE) 404'tür; controller'daki tek `notFound(res)` fonksiyonu bunu yazar:
 
 ```json
 { "error": { "message": "Event not found" } }
 ```
+
+### Route sırası
+
+Express route'ları yukarıdan aşağı dener. `/upcoming` sabit adresi `/:id`'den **önce** yazılır; yoksa `"upcoming"` bir id sanılır ve `404 Event not found` döner.
+
+```js
+router.get("/", getEvents);
+router.get("/upcoming", getUpcomingEvents); // önce
+router.get("/:id", getEventById);
+router.post("/", createEvent);
+router.patch("/:id", updateEvent);
+router.delete("/:id", deleteEvent);
+```
+
+| İstek | Eşleşen |
+|---|---|
+| `GET /events/upcoming` | `getUpcomingEvents` |
+| `GET /events/6af5...` | `getEventById` |
+| `PATCH /events/6af5...` | `updateEvent` |
+| `DELETE /events/6af5...` | `deleteEvent` |
+
+### `GET /events` — arama ve filtre
+
+Query string'den (`?` sonrası) bir filtre nesnesi kurulur; sonuç tarihe göre sıralıdır.
+
+| Adres | `filter` |
+|---|---|
+| `/events` | `{}` |
+| `/events?category=Atölye` | `{ category: "Atölye" }` |
+| `/events?search=atölye` | `{ title: { $regex: "atölye", $options: "i" } }` |
+| `/events?search=atölye&category=Atölye` | ikisi birden |
+
+`$options: "i"` sayesinde büyük/küçük harf fark etmez: `atölye` de `ATÖLYE` de `ESP32 ile IoT Prototipleme Atölyesi`'ni bulur. `( * ? [ \` gibi işaretler regex'e konmadan önce kaçırılır; `?search=(` 500 yerine boş liste döner.
+
+### `GET /events/upcoming`
+
+```js
+Event.find({ date: { $gte: todayStart() } }).sort({ date: 1, time: 1 });
+```
+
+Bugün ve sonrası gelir, en yakın önce. Seed'deki 2 geçmiş tarihli etkinlik (`14-11-2026`, `18-11-2026`) bu listede yoktur; `/events` 6, `/events/upcoming` 4 kayıt döner.
+
+| İşleç | Anlamı |
+|---|---|
+| `$gte` | büyük ya da eşit (≥) |
+| `$gt` / `$lt` | büyük / küçük |
+| `sort 1` / `-1` | artan / azalan |
 
 ### `GET /events/:id`
 
@@ -100,21 +160,57 @@ Doğrulamayı schema yapar; controller Mongoose'un `ValidationError`'ını `400`
 {
   "title": "Git Atölyesi",
   "category": "Atölye",
-  "date": "2026-12-01",
+  "date": "20-12-2026",
   "capacity": 30
 }
 ```
 
 | Gönderilen body | Sonuç |
 |---|---|
-| `title`, `category`, `date` tam | 201 · `_id` + `createdAt` |
+| `title`, `category`, `date` tam | 201 · `_id` + `createdAt`, `date: "20-12-2026"` |
 | Sadece `title` | 400 · required |
+| `date: "2026-12-20"` | 400 · `Cast to date failed` (biçim `GG-AA-YYYY` olmalı) |
+| `date: "31-02-2026"` | 400 · olmayan gün |
 | `category: "Parti"` | 400 · enum |
 | `title: "X"` | 400 · minlength |
 | Bozuk JSON | 400 · `Invalid JSON body` |
 | JSON olmayan body (Text, form-data) | 400 · `Body must be JSON (Content-Type: application/json)` |
 
-> **Postman'de POST kaydetmiyorsa:** Body sekmesinde **raw** seçili olmalı ve sağdaki tür **Text değil JSON** olmalı. Text ya da form-data seçilirse istek `application/json` olarak gitmez, sunucu body'yi okuyamaz ve 400 döner. Ayrıca `npm run seed` her çalıştığında `events` collection'ını sıfırlar; POST ile eklenenler de silinir.
+> **Postman'de POST kaydetmiyorsa:** Body sekmesinde **raw** seçili olmalı ve sağdaki tür **Text değil JSON** olmalı. Ayrıca `npm run seed` her çalıştığında `events` collection'ını sıfırlar; POST ile eklenenler de silinir.
+
+### `PATCH /events/:id`
+
+Kaydın **sadece gönderilen alanları** değişir; diğerleri olduğu gibi kalır. Yanıt güncellenmiş kayıttır.
+
+```js
+Event.findByIdAndUpdate(req.params.id, body, {
+  returnDocument: "after", // yoksa yanıtta eski hali döner
+  runValidators: true,     // yoksa schema kuralları güncellemede çalışmaz
+});
+```
+
+| PATCH body | Sonuç | Neden |
+|---|---|---|
+| `{ "capacity": 55 }` | 200 | Sadece `capacity` değişti |
+| `{ "title": " Yeni Başlık " }` | 200 | `trim`: `"Yeni Başlık"` |
+| `{ "date": "25-12-2026" }` | 200 | Tarih yine `GG-AA-YYYY` |
+| `{}` | 400 | `Body is empty` |
+| `{ "category": "Parti" }` | 400 | enum, `runValidators` |
+| `{ "date": "2026-12-25" }` | 400 | `CastError` da 400'e çevrilir (500 değil) |
+| `{ "_id": "abc" }` | 400 | `_id cannot be changed` (`_id`, `createdAt`, `updatedAt`, `__v` korunur) |
+| `{ "$unset": { ... } }` | 400 | MongoDB operatörü body ile gönderilemez |
+| `/events/yok` ya da silinmiş id | 404 | `Event not found` |
+
+### `DELETE /events/:id`
+
+| İstek | Sonuç |
+|---|---|
+| `DELETE /events/<_id>` | 204 · gövde yok |
+| Aynı istek bir daha | 404 · `Event not found` |
+| `DELETE /events/yok` | 404 |
+| Sonra `GET /events` | 1 kayıt eksik |
+
+204'ün gövdesi olmaz; bu yüzden `res.json(...)` değil `res.status(204).end()` kullanılır.
 
 ### Hata middleware'i
 
@@ -129,11 +225,14 @@ backend/
 │   ├── server.js                       .env'i okur, önce veritabanına bağlanır, sonra portu dinler
 │   ├── seed.js                         npm run seed: sil, sonra 6 etkinlik ekle
 │   ├── config/database.js              connectDatabase(): MONGODB_URI ile bağlanır
-│   ├── models/event-model.js           Event schema'sı ve modeli
-│   ├── data/seed-events.js             Seed için 6 örnek etkinlik (id alanı yok)
-│   ├── routes/event-routes.js          Hangi adres hangi fonksiyona gider
-│   └── controllers/event-controller.js async/await ile Event modelini kullanır
-├── requests/kampus-api.json            Postman collection (7 istek)
+│   ├── utils/date.js                   parseDate, formatDate, todayStart (GG-AA-YYYY)
+│   ├── models/event-model.js           Event schema'sı ve modeli (date: Date, get/set)
+│   ├── data/seed-events.js             Seed için 6 örnek etkinlik (2'si geçmiş tarihli)
+│   ├── routes/event-routes.js          Hangi adres hangi fonksiyona gider (/upcoming, /:id'den önce)
+│   └── controllers/event-controller.js getEvents, getUpcomingEvents, getEventById, createEvent, updateEvent, deleteEvent
+├── requests/
+│   ├── kampus-api.json                 Postman collection (18 istek, 45 test)
+│   └── run-results.json                Collection Runner sonucu (18 istek, 45 test, 0 hata)
 ├── .env.example
 ├── .gitignore
 └── package.json
@@ -141,33 +240,65 @@ backend/
 
 ## Test
 
-`requests/kampus-api.json` dosyası Postman'e içe aktarılır. "2 Etkinlik listesi" isteği listedeki ilk `_id`'yi `eventId` collection değişkenine yazar; "3 Tek etkinlik" bu değişkeni kullanır, bu yüzden 3'ten önce 2 çalıştırılmalıdır.
+### Collection Runner
 
-| # | İstek | Beklenen |
-|---|---|---|
-| 1 | `GET /health` | 200 · ok + student |
-| 2 | `GET /events` | 200 · 6 kayıt (seed sonrası) |
-| 3 | `GET /events/{{eventId}}` | 200 · listedeki ilk etkinlik |
-| 4 | `GET /events/yok` | 404 · error |
-| 5 | `POST /events` (tam body) | 201 · `_id` |
-| 6 | `POST /events` (sadece title) | 400 · error |
-| 7 | `GET /events/507f1f77bcf86cd799439011` | 404 · error |
+Hazır collection (`requests/kampus-api.json`, ders sitesindeki `https://webdersi.vercel.app/test.json` ile aynı 18 istek) Postman'e içe aktarılır ve tek tıkla çalıştırılır:
 
-**Kalıcılık testi:**
+1. Terminal: `npm run seed`, sonra `npm run dev`
+2. Postman › Import › `requests/kampus-api.json` (ya da `webdersi.vercel.app/test.json` adresi)
+3. Collection'a sağ tık › **Run collection** › **Run**
+4. Hedef: **18 istek, 45 test, hepsi yeşil**
 
-1. `npm run seed`, sonra `npm run dev`
-2. `POST /events` → 201, `_id`'yi not al
-3. Terminalde `Ctrl+C` ile sunucuyu durdur, tekrar `npm run dev`
-4. `GET /events` → 7 kayıt, yeni etkinlik listede
-5. Atlas › Browse Collections › `kampus.events` içinde de görünür
+id'leri elle girmek gerekmez: **02** listedeki ilk `_id`'yi `eventId`'ye, **05** yeni oluşan kaydın `_id`'sini `newId`'ye kaydeder. PATCH ve DELETE o yeni kayıtla çalışır, seed verisi bozulmaz; istenildiği kadar tekrar Run edilebilir.
+
+Terminalden aynı test (backend açıkken):
+
+```bash
+npm i -g newman
+newman run https://webdersi.vercel.app/test.json
+```
+
+| İstekler | Ne test ediliyor |
+|---|---|
+| 01–04 | Sprint 8'den: health, liste, tek, 404 |
+| 05–07 | Adım 1: tarih `GG-AA-YYYY` (yanlış biçim 400) |
+| 08–13 | Adım 3–4: PATCH (200, tarih, boş body, enum, `_id`, olmayan id) |
+| 14–15 | Adım 6: arama ve filtre |
+| 16 | Adım 0 ve 7: geçmiş tarih, `/upcoming` |
+| 17–18 | Adım 5: DELETE (204, tekrar silince 404) |
+
+Son çalıştırmanın sonucu `requests/run-results.json` içindedir: **18 istek, 45 test, 45 geçti, 0 hata.**
+
+```text
+│              requests │                 18 │                  0 │
+│            test-scripts │                 18 │                  0 │
+│              assertions │                 45 │                  0 │
+```
+
+## Sık Karşılaşılan Hatalar
+
+| Ne oluyor | Çözüm |
+|---|---|
+| `/events/upcoming` → 404 Event not found | `/upcoming` route'unu `/:id`'den önce yaz |
+| PATCH sonrası yanıtta eski değer | `returnDocument: "after"` ekle |
+| PATCH `category: "Parti"` kabul edildi | `runValidators: true` ekle |
+| PATCH / DELETE → 404 Route not found | `router.patch` / `router.delete` satırı eksik |
+| DELETE → 200 ve gövde | `res.status(204).end()`; 204'ün gövdesi olmaz |
+| `?search=(` → 500 | Aramayı regex'e koymadan önce özel işaretleri kaçır |
+| upcoming tüm kayıtları veriyor | Seed'de geçmiş tarihli etkinlik yok ya da `$gte` yerine `$lte` |
+| POST tarih → 400 Cast to date failed | `"20-12-2026"` gönder; `"2026-12-20"` kabul edilmez |
+| PATCH yanlış tarih → 500 | `catch`'te `CastError`'u da 400'e çevir |
+| Yanıtta date `"2026-12-01T00:00:00.000Z"` | Schema'ya `toJSON: { getters: true }` |
 
 ## Teslim Kontrol Listesi
 
 - [x] `npm install` + `npm run dev` çalışıyor (temiz klonda, `.env` yalnızca yerelde)
 - [x] Bağlantı ayrı modülde (`src/config/database.js`), URI `.env`'den okunuyor, `.env.example`'da `MONGODB_URI` var
-- [x] Schema'da `required`, `trim`, `timestamps` ve kısıtlar (`minlength`, `maxlength`, `enum`, `min`) var
-- [x] `npm run seed` 6 kayıt ekliyor; iki kez çalışınca da 6 kayıt
-- [x] `GET /events` ve `GET /events/:id` MongoDB'den okuyor; olmayan ve geçersiz id 404
-- [x] `POST` 201 dönüyor; eksik veri 400 dönüyor ve sunucu çökmüyor (`/health` hâlâ 200)
-- [x] Sunucu yeniden başlayınca `POST` ile eklenen kayıt duruyor
+- [x] `npm run seed` 6 kayıt ekliyor, 2'si geçmiş tarihli; iki kez çalışınca da 6 kayıt
+- [x] Tarih her yerde `"GG-AA-YYYY"`, veritabanında `Date`; yanlış biçim 400
+- [x] `PATCH /events/:id` sadece gönderilen alanları değiştiriyor, güncel kaydı dönüyor; boş body, geçersiz alan ve `_id` 400, olmayan id 404
+- [x] `DELETE /events/:id` 204 ve gövdesiz; ikinci silme 404
+- [x] `?search` (büyük/küçük harf duyarsız) ve `?category` tek başına ve birlikte çalışıyor
+- [x] `/events/upcoming` geçmiş tarihlileri eliyor, en yakın önce; route `/:id`'den önce
+- [x] Collection Runner: 18 istek, 45 test, 0 hata (`requests/run-results.json`)
 - [x] Git geçmişinde gerçek Atlas adresi/şifresi, `.env` ve `node_modules` yok
